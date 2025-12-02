@@ -1,0 +1,8 @@
+# .railway/variables.yml
+variables:
+  BOT_TOKEN: ""
+  CHANNEL_ID: ""
+  ADMIN_USER_ID: ""
+  SUBSCRIPTION_NAME: "Ножки Альтушек"
+  SUBSCRIPTION_DAYS: "30"
+  SUBSCRIPTION_PRICE: "99"
