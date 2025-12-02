@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:$PORT application:app
+web: python crypto_subscription_bot.py

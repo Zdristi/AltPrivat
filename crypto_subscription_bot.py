@@ -662,7 +662,7 @@ if __name__ == '__main__':
 
     # For local testing with polling
     import os
-    if os.getenv('RAILWAY_STATIC_URL') or os.getenv('ENV') == 'production':
+    if os.getenv('RENDER') or os.getenv('ENV') == 'production' or os.getenv('RAILWAY_STATIC_URL'):
         # Production mode - webhook
         app = web.Application()
 
