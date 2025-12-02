@@ -7,12 +7,9 @@ if exist venv\Scripts\activate (
     call venv\Scripts\activate
 )
 
-REM Check if requirements are installed
-pip list | findstr aiogram >nul
-if errorlevel 1 (
-    echo Installing dependencies...
-    pip install -r requirements.txt
-)
+REM Install dependencies
+echo Installing dependencies...
+pip install -r requirements.txt
 
 REM Run the crypto subscription bot with environment variable for local testing
 set ENV=local
