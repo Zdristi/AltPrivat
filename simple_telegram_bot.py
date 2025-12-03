@@ -477,12 +477,25 @@ class TelegramWebhookHandler(BaseHTTPRequestHandler):
         self.wfile.write(b"Telegram Bot is running!")
 
 def set_webhook():
-    webhook_url = f"https://{os.getenv('RENDER_EXTERNAL_URL', 'your-app-name.onrender.com')}/webhook"
+    # Используем правильный URL для Render
+    render_external_url = os.getenv('RENDER_EXTERNAL_URL')
+    if render_external_url:
+        webhook_url = f"https://{render_external_url}/webhook"
+    else:
+        # Резервный вариант, если переменная не установлена
+        webhook_url = f"https://{os.getenv('RENDER_SERVICE_NAME', 'your-app-name')}.onrender.com/webhook"
+
+    print(f"Setting webhook to: {webhook_url}")
+    logging.info(f"Setting webhook to: {webhook_url}")
+
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook"
     data = {'url': webhook_url}
-    
+
     response = requests.post(url, data=data)
-    return response.json()
+    result = response.json()
+    print(f"Webhook response: {result}")
+    logging.info(f"Webhook response: {result}")
+    return result
 
 def run_server():
     init_db()
