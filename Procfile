@@ -1,1 +1,1 @@
-web: python simple_telegram_bot.py
+web: gunicorn --bind 0.0.0.0:$PORT simple_telegram_bot:application

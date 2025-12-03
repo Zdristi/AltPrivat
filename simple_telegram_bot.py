@@ -484,10 +484,91 @@ def set_webhook():
     response = requests.post(url, data=data)
     return response.json()
 
+def application(environ, start_response):
+    """WSGI-совместимое приложение"""
+    init_db()
+
+    # Обработка вебхука
+    if environ['REQUEST_METHOD'] == 'POST' and environ.get('PATH_INFO', '') == '/webhook':
+        # Получаем тело запроса
+        content_length = int(environ.get('CONTENT_LENGTH', 0))
+        post_data = environ['wsgi.input'].read(content_length).decode('utf-8')
+
+        try:
+            update = json.loads(post_data)
+
+            # Обработка обновлений от Telegram (аналогично предыдущему коду)
+            if 'message' in update:
+                message = update['message']
+                user_id = message['from']['id']
+                text = message.get('text', '')
+
+                # Обработка команд
+                if text.startswith('/start'):
+                    handle_start(user_id, text)
+                elif text.startswith('/ref') or text.startswith('/referal'):
+                    handle_referral(user_id, message['from'].get('username'))
+                elif text.startswith('/broadcast'):
+                    handle_broadcast(user_id, text)
+                elif text.startswith('/stats'):
+                    handle_stats(user_id)
+                else:
+                    # Если это не команда, просто показать выбор тарифа
+                    handle_start(user_id, '/start')
+
+            elif 'callback_query' in update:
+                callback_query = update['callback_query']
+                user_id = callback_query['from']['id']
+                callback_data = callback_query['data']
+
+                if callback_data == 'show_tariff_photo_legs':
+                    handle_tariff_selection(user_id, 'show_tariff_photo_legs')
+                elif callback_data == 'show_tariff_juicy_altushki':
+                    handle_tariff_selection(user_id, 'show_tariff_juicy_altushki')
+                elif callback_data == 'show_tariff_mini_sampler':
+                    handle_tariff_selection(user_id, 'show_tariff_mini_sampler')
+                elif callback_data.startswith('payment_'):
+                    handle_payment_option(user_id, callback_data)
+                elif callback_data == 'back_to_tariffs':
+                    handle_back_to_tariffs(user_id)
+
+            elif 'pre_checkout_query' in update:
+                pre_checkout_query = update['pre_checkout_query']
+                answer_pre_checkout_query(pre_checkout_query['id'])
+
+            elif 'message' in update and 'successful_payment' in update['message']:
+                user_id = update['message']['from']['id']
+                handle_successful_payment(user_id)
+
+            status = '200 OK'
+            response_headers = [('Content-type', 'application/json')]
+            start_response(status, response_headers)
+            return [json.dumps({'ok': True}).encode('utf-8')]
+
+        except Exception as e:
+            logging.error(f"Ошибка при обработке обновления: {e}")
+            status = '500 Internal Server Error'
+            response_headers = [('Content-type', 'application/json')]
+            start_response(status, response_headers)
+            return [json.dumps({'ok': False, 'error': str(e)}).encode('utf-8')]
+
+    elif environ['REQUEST_METHOD'] == 'GET':
+        # Простой эндпоинт для проверки работоспособности
+        status = '200 OK'
+        response_headers = [('Content-type', 'text/html')]
+        start_response(status, response_headers)
+        return [b"Telegram Bot is running!"]
+
+    else:
+        status = '404 Not Found'
+        response_headers = [('Content-type', 'text/html')]
+        start_response(status, response_headers)
+        return [b"Not Found"]
+
 def run_server():
     init_db()
     set_webhook()
-    
+
     port = int(os.environ.get('PORT', 8000))
     server = HTTPServer(('0.0.0.0', port), TelegramWebhookHandler)
     logging.info(f"Starting server on port {port}")
