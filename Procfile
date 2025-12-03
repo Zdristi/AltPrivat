@@ -1,1 +1,1 @@
-web: pip install aiogram==3.4.1 --no-deps && pip install requests==2.31.0 aiohttp==3.9.1 gunicorn==21.2.0 && python crypto_subscription_bot.py
+web: python crypto_bot_v2.py
