@@ -480,7 +480,11 @@ def set_webhook():
     # Используем правильный URL для Render
     render_external_url = os.getenv('RENDER_EXTERNAL_URL')
     if render_external_url:
-        webhook_url = f"https://{render_external_url}/webhook"
+        # Проверяем, содержит ли RENDER_EXTERNAL_URL уже https://
+        if render_external_url.startswith('http'):
+            webhook_url = f"{render_external_url}/webhook"
+        else:
+            webhook_url = f"https://{render_external_url}/webhook"
     else:
         # Резервный вариант, если переменная не установлена
         webhook_url = f"https://{os.getenv('RENDER_SERVICE_NAME', 'your-app-name')}.onrender.com/webhook"
