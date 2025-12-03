@@ -1,4 +1,4 @@
 aiogram==2.25.2
 requests
-aiohttp
+aiohttp==3.9.5
 gunicorn
