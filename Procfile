@@ -1,1 +1,1 @@
-web: python crypto_bot_v2.py
+web: python simple_telegram_bot.py
